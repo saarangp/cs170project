@@ -50,7 +50,7 @@ for p in range(len(problem_size)):
 	loc_names = ["loc" + str(i) for i in range(problem_size[p])]
 	#choose n/5 integers between 0 and n, these are the dropoffs
 	#cannot drop off at vertex zero
-	dropoffs = np.random.choice(problem_size[p] - 1, int(problem_size[p]/5), replace=False) + 1
+	dropoffs = np.random.choice(problem_size[p] - 1, int(2*problem_size[p]/5), replace=False) + 1
 	dropoffs = [loc_names[i] for i in dropoffs]
 
 	write_to_file(str(problem_size[p]) + ".in", "")
