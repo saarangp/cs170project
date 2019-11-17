@@ -45,6 +45,7 @@ def is_metric(G):
     shortest = dict(nx.floyd_warshall(G))
     for u, v, datadict in G.edges(data=True):
         if abs(shortest[u][v] - datadict['weight']) >= 0.00001:
+            print(str(u) + " " + str(v) + " " + str(shortest[u][v]) + " " + str(datadict['weight']))
             return False
     return True
 
@@ -105,10 +106,3 @@ def cost_of_solution(G, car_cycle, dropoff_mapping):
 
 def convert_locations_to_indices(list_to_convert, list_of_locations):
     return [list_of_locations.index(name) if name in list_of_locations else None for name in list_to_convert]
-
-
-
-
-
-
-
