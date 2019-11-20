@@ -28,6 +28,8 @@ def get_output(filename):
 	house_ind = convert_locations_to_indices(houses,locs)
 	start_loc_ind = convert_locations_to_indices([start_loc],locs)
 	path_inds = start_loc_ind + house_ind + start_loc_ind
+	nx.draw(G)
+	
 
 	# print(nx.find_cycle(G))
 
@@ -47,7 +49,7 @@ def get_output(filename):
 		write_data_to_file(output,stop,' ', append = True)
 		write_to_file(output,'\n',append = True)
 
-
+	plt.show()
 
 files = ('input/50.in','input/100.in', 'input/200.in')
 
