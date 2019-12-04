@@ -54,10 +54,15 @@ def modified_voronoi(G, house_ind,num_loc):
 
 def find_path(G, house_ind,num_loc,lv,start):
 	#shrink lv
-	[lv.pop(i) for i in list(lv.keys()) if len(lv[i])<1]
+	min_clus_size = 2
+	[lv.pop(i) for i in list(lv.keys()) if len(lv[i])<min_clus_size]
 	path = []
+
 	dropoffs = {}
-	sorted_keys_lv = sorted(lv, key=lambda k: len(lv[k]), reverse=True)
+
+	#for some reason it works better to start greedily go to each cluster
+	sorted_keys_lv = sorted(lv, key=lambda k: nx.shortest_path_length(G,start,k,weight = 'weight')) 
+
 	currpos = start
 	for stop in sorted_keys_lv:
 		path.extend(nx.shortest_path(G,currpos,stop,weight = 'weight')[:-1])
@@ -66,13 +71,17 @@ def find_path(G, house_ind,num_loc,lv,start):
 			house_ind.remove(i)
 		dropoffs[stop] = lv[stop]
 
+
 	if len(house_ind) > 0:
-		for house in house_ind:
+		#sorting the remaining houses, howeever doesnt seem to help too much
+		# house_ind = sorted(house_ind, key = lambda h: nx.shortest_path_length(G,start,h,weight = 'weight'),reverse = True)
+		while len(house_ind) > 0:
+			house = house_ind.pop()
 			path.extend(nx.shortest_path(G,currpos,house,weight = 'weight')[:-1])
 			currpos = house
-			house_ind.pop(house)
-			dropoffs[house] = house
+			dropoffs[house] = [house]
 
+	print(house_ind)
 	path.extend(nx.shortest_path(G,currpos,start,weight = 'weight')[:-1])
 	path.extend([start])
 	return path,dropoffs
@@ -98,7 +107,7 @@ def output_text(path,dropoffs,locs):
 
 
 
-filename = '50.in'
+filename = '200.in'
 
 #Parse input file and convert to nx graph
 input = read_file(filename)
