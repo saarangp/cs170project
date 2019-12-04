@@ -31,7 +31,7 @@ def draw_network(G, house_ind,cc):
 	plt.show()
 	# print(G.edges.data())
 
-def modified_voronoi(G, house_ind,num_loc):
+def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 	#returns array where ith house is closest to A[i] location
 	#returns dictionary keyed by locations and houses closest to them
 	loc_vor = {}
@@ -50,12 +50,34 @@ def modified_voronoi(G, house_ind,num_loc):
 	for i in range(len(closest_centroid)):
 		loc_vor[closest_centroid[i]].append(house_ind[i])
 
+
+	#add unclaimed houses to clusters
+	unclaimed_houses = []
+	for i in list(loc_vor.keys()):
+		if len(loc_vor[i])<min_clus_size:
+			unclaimed_houses.extend(loc_vor[i])
+			loc_vor.pop(i)	
+
+
+	#same clustering as above but particular to the selected ones. 
+	uvor = []
+	for hou in unclaimed_houses:
+		h = []
+		for loc in list(loc_vor.keys()):
+			h.append((loc,nx.shortest_path_length(G,loc,hou,weight = 'weight')))
+		uvor.append(h)
+	uclosest_centroid = [min(dist, key=lambda d: d[1])[0] for dist in uvor]
+
+
+	print(loc_vor)
+	for i in range(len(uclosest_centroid)):
+		loc_vor[uclosest_centroid[i]].append(unclaimed_houses[i])
+
+	print(loc_vor)
+
 	return closest_centroid,loc_vor
 
 def find_path(G, house_ind,num_loc,lv,start):
-	#shrink lv
-	min_clus_size = 2
-	[lv.pop(i) for i in list(lv.keys()) if len(lv[i])<min_clus_size]
 	path = []
 
 	dropoffs = {}
@@ -81,7 +103,6 @@ def find_path(G, house_ind,num_loc,lv,start):
 			currpos = house
 			dropoffs[house] = [house]
 
-	print(house_ind)
 	path.extend(nx.shortest_path(G,currpos,start,weight = 'weight')[:-1])
 	path.extend([start])
 	return path,dropoffs
@@ -107,7 +128,7 @@ def output_text(path,dropoffs,locs):
 
 
 
-filename = '200.in'
+filename = '50.in'
 
 #Parse input file and convert to nx graph
 input = read_file(filename)
@@ -120,10 +141,6 @@ house_ind = convert_locations_to_indices(houses,locs)
 cc,lv = modified_voronoi(G, house_ind,num_loc)
 
 path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
-print(path)
-print(dropoffs)
-
-
 output_text(path,dropoffs,locs)
 
 
