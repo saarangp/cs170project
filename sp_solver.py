@@ -12,9 +12,6 @@ import matplotlib.pyplot as plt
 import pprint
 
 
-
-
-
 def draw_network(G, house_ind,cc):
 	_,weights = zip(*nx.get_edge_attributes(G,'weight').items())
 	pos = nx.spring_layout(G)
@@ -83,7 +80,7 @@ def find_path(G, house_ind,num_loc,lv,start):
 	dropoffs = {}
 
 	#for some reason it works better to start greedily go to each cluster
-	sorted_keys_lv = sorted(lv, key=lambda k: nx.shortest_path_length(G,start,k,weight = 'weight')) 
+	sorted_keys_lv = sorted(lv, key=lambda k: nx.shortest_path_length(G,start,k,weight = 'weight'),reverse = True) 
 
 	currpos = start
 	for stop in sorted_keys_lv:
@@ -94,21 +91,32 @@ def find_path(G, house_ind,num_loc,lv,start):
 		dropoffs[stop] = lv[stop]
 
 
-	if len(house_ind) > 0:
-		#sorting the remaining houses, howeever doesnt seem to help too much
-		# house_ind = sorted(house_ind, key = lambda h: nx.shortest_path_length(G,start,h,weight = 'weight'),reverse = True)
-		while len(house_ind) > 0:
-			house = house_ind.pop()
-			path.extend(nx.shortest_path(G,currpos,house,weight = 'weight')[:-1])
-			currpos = house
-			dropoffs[house] = [house]
+	# if len(house_ind) > 0:
+	# 	#sorting the remaining houses, howeever doesnt seem to help too much
+	# 	# house_ind = sorted(house_ind, key = lambda h: nx.shortest_path_length(G,start,h,weight = 'weight'),reverse = True)
+	# 	print('got here')
+	# 	while len(house_ind) > 0:
+	# 		house = house_ind.pop()
+	# 		path.extend(nx.shortest_path(G,currpos,house,weight = 'weight')[:-1])
+	# 		currpos = house
+	# 		dropoffs[house] = [house]
 
 	path.extend(nx.shortest_path(G,currpos,start,weight = 'weight')[:-1])
 	path.extend([start])
+
+	#get rid of walking where we drive through anyways
+	for i in list(dropoffs.keys()):
+		for d in dropoffs[i]:
+			if d in path:
+				dropoffs[i].remove(d)
+				dropoffs[d] = [d]
+
+
 	return path,dropoffs
 
 def ind_path_to_locs(path,locs):
 	return [locs[i] for i in path]
+
 
 def stops_to_text(dropoffs, locs):
 	text = ''
@@ -124,10 +132,6 @@ def output_text(path,dropoffs,locs):
 	print(len(dropoffs.keys()))
 	print(stops_to_text(dropoffs,locs))
 
-
-
-
-
 filename = '50.in'
 
 #Parse input file and convert to nx graph
@@ -137,12 +141,15 @@ start = convert_locations_to_indices([start_loc],locs)[0]
 G = adjacency_matrix_to_graph(adj)[0]
 house_ind = convert_locations_to_indices(houses,locs)
 
+#make sure not alking to houses we can drive to
+# T=nx.minimum_spanning_tree(G,weight = 'weight')
+# print(sorted(T.edges(data=False)))
+
 # Gets modified voronoi for houses and locations to figure out optimal stops.
 cc,lv = modified_voronoi(G, house_ind,num_loc)
 
 path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
 output_text(path,dropoffs,locs)
-
 
 # draw_network(G,house_ind,cc)
 
