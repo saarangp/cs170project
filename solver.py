@@ -6,6 +6,8 @@ import argparse
 import utils
 
 from student_utils import *
+from graph_reduction import *
+from sp_solver import *
 """
 ======================================================================
   Complete the following function.
@@ -24,6 +26,13 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
         A list of locations representing the car path
         A list of (location, [homes]) representing drop-offs
     """
+    G = adjacency_matrix_to_graph(adjacency_matrix)[0]
+    house_ind = convert_locations_to_indices(list_of_homes,list_of_locations)
+    G = add_node_attributes(G, house_ind)
+    cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
+    start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
+    path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
+    output_text(path,dropoffs,locs)
     pass
     
 
