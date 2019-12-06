@@ -10,6 +10,7 @@ import networkx as nx
 from student_utils import *
 import matplotlib.pyplot as plt
 import pprint
+from graph_reduction import *
 
 
 def draw_network(G, house_ind,cc):
@@ -74,6 +75,18 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 
 	return closest_centroid,loc_vor
 
+def cost_clustering(G):
+	neighbors_cost = []
+	residents = nx.get_node_attributes(G, 'residents')
+	n = list(G.nodes)
+	for v in G.nodes:
+		cost = [G.node(u)['residents'] * G[u][v]['weight'] for u in G[v]][0]
+		cost = sum(cost)
+		neighbors_cost.append(cost)
+	n = sort_list(n, neighbors_cost)
+	centroids = {}
+
+
 def find_path(G, house_ind,num_loc,lv,start):
 	path = []
 
@@ -135,11 +148,14 @@ def output_text(path,dropoffs,locs):
 filename = '50.in'
 
 #Parse input file and convert to nx graph
-input = read_file(filename)
-num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
-start = convert_locations_to_indices([start_loc],locs)[0]
-G = adjacency_matrix_to_graph(adj)[0]
-house_ind = convert_locations_to_indices(houses,locs)
+# input = read_file(filename)
+# num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
+# start = convert_locations_to_indices([start_loc],locs)[0]
+# G = adjacency_matrix_to_graph(adj)[0]
+# house_ind = convert_locations_to_indices(houses,locs)
+G = prepare_file(filename)
+residents = nx.get_node_attributes(G, 'residents')
+house_ind = [i for i in G.nodes if residents[i] >= 1]
 
 #make sure not alking to houses we can drive to
 # T=nx.minimum_spanning_tree(G,weight = 'weight')
