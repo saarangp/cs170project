@@ -49,7 +49,7 @@ def prune_branch(G, v, res):
 
 
 
-def prepare_file(filename):
+def prepare_file(filename, drawn=False):
 	input = read_file(filename)
 	output = input_to_output(filename)
 	num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
@@ -58,7 +58,8 @@ def prepare_file(filename):
 	start_loc_ind = convert_locations_to_indices([start_loc],locs)
 	path_inds = start_loc_ind + house_ind + start_loc_ind
 	G = add_node_attributes(G, house_ind)
-	draw_network(G, house_ind)
+	if drawn=True:
+		draw_network(G, house_ind)
 	return G
 
 def prepare_files(directory):
