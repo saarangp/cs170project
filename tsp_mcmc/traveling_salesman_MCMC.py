@@ -27,8 +27,8 @@ import math
 
 '''CHANGE THESE BOIZ RIGHT HERE'''
 ITER0 = 30
-ITER1 = 10000
-ITER2 = 5000
+ITER1 = 2000
+ITER2 = 1000
 
 '''Keep ITER0 relatively low, and ITER1 about two times as much as ITER2
 For reference, 500 : 100000 : 50000 took about 1.5 mintues for a random input of size 200
