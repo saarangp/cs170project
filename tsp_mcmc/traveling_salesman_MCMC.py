@@ -52,6 +52,8 @@ returns list of edges that solver will travel to starting and ending with locati
 # Calculate total distance for a given sequence
 def mcmc_solver(G):
     distance = nx.to_numpy_matrix(G)
+
+    node_names = list(G.nodes)
     #print(distance)
 
 
@@ -115,7 +117,7 @@ def mcmc_solver(G):
     # print (cal_dist(distance, L)) # final distance
     # plt.plot(dist_all)
     # plt.show()
-    return(list(L))
+    return([node_names[i] for i in L])
 
 # def christo_solver(G):
 #     distance_matrix = list(nx.to_numpy_matrix(G))

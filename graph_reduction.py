@@ -70,6 +70,13 @@ def find_nearest_centroid(G, centroids):
 	for v in h:
 		if v in centroids:
 			cluster_dict[v].append(v)
+		else:
+			#TODO: add code that finds nearest centroid
+			pass
+	keys = [i for i in cluster_dict.keys()]
+	for c in keys:
+		if cluster_dict[c] == []:
+			cluster_dict.pop(c)
 	return cluster_dict
 
 

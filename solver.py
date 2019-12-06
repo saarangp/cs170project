@@ -33,6 +33,7 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     #cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
     start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
     centroids = cost_clustering(G, start)
+    print(centroids)
     #turn into fully connected graph of dropoffs
     G_prime = nx.Graph()
     G_prime.add_nodes_from(centroids)
@@ -42,7 +43,11 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
                 G_prime.add_edge(u, v)
                 G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
     #G_prime is fully connected graph to feed into mcmc
-    path = mcmc_solver(G_prime)
+    abbrev_path = mcmc_solver(G_prime)
+    path = [abbrev_path[0]]
+    for i in range(len(abbrev_path) - 1):
+        rt = nx.dijkstra_path(G, abbrev_path[i], abbrev_path[i + 1])
+        path = path + rt[1:]
     dropoffs = find_nearest_centroid(G, centroids)
     #dropoffs = [(v, clusters[v]) for v in clusters.keys()]
     #start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
