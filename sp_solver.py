@@ -86,14 +86,26 @@ def cost_clustering(G):
 		cost = [G.nodes[u]['residents'] * G[u][v]['weight'] for u in G[v]]
 		cost = sum(cost)
 		neighbors_cost.append(cost)
-	print(neighbors_cost)
 	centroids = {}
+	for u in G.nodes():
+		centroids[u] = []
+
 	for e in G.edges():
 		u,v = e[0],e[1]
 		if neighbors_cost[u] < neighbors_cost[v]:
-			centroids.get(u,[]).append(v)
+			centroids[u].append(v)
 		elif neighbors_cost[u] > neighbors_cost[v]:
-			centroids.get(v,[]).append(u)
+			centroids[v].append(u)
+		else:
+			if residents[u] >= 1 or residents[v] >=1:
+				centroids[v].append(v)
+				centroids[u].append(u)
+
+	return centroids
+
+
+
+
 
 def ind_list_to_loc(l,locs):
 	return [locs[i] for i in l]
@@ -157,7 +169,7 @@ def output_text(path,dropoffs,locs):
 	print(len(dropoffs.keys()))
 	print(stops_to_text(dropoffs,locs))
 
-# filename = '50.in'
+filename = 'input/50.in'
 
 # #Parse input file and convert to nx graph
 # input = read_file(filename)
@@ -165,10 +177,11 @@ def output_text(path,dropoffs,locs):
 # start = convert_locations_to_indices([start_loc],locs)[0]
 # G = adjacency_matrix_to_graph(adj)[0]
 # house_ind = convert_locations_to_indices(houses,locs)
-# # G = prepare_file(filename)
-# # residents = nx.get_node_attributes(G, 'residents')
-# # house_ind = [i for i in G.nodes if residents[i] >= 1]
-# # cost_clustering(G)
+G = prepare_file(filename)
+residents = nx.get_node_attributes(G, 'residents')
+house_ind = [i for i in G.nodes if residents[i] >= 1]
+centr_cost  = cost_clustering(G)
+print(centr_cost)
 
 # # Gets modified voronoi for houses and locations to figure out optimal stops.
 
