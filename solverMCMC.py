@@ -4,15 +4,23 @@ sys.path.append('..')
 sys.path.append('../..')
 import argparse
 import utils
-
+import numpy as np
+import matplotlib.pyplot as plt
+import copy
+import networkx as nx
 from student_utils import *
-from graph_reduction import *
-from sp_solver import *
+import random
 """
 ======================================================================
   Complete the following function.
 ======================================================================
 """
+
+def cal_dist(distance, L):
+    d = 0
+    for i in range(len(L)):
+        d = d + distance[L[i % N], L[(i + 1) % N]]
+    return d
 
 def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_matrix, params=[]):
     """
@@ -25,24 +33,51 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     Output:
         A list of locations representing the car path
         A list of (location, [homes]) representing drop-offs
+
     """
-    G = adjacency_matrix_to_graph(adjacency_matrix)[0]
-    house_ind = convert_locations_to_indices(list_of_homes,list_of_locations)
-    G = add_node_attributes(G, house_ind)
-    cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
-    #turn into fully connected graph of dropoffs
-    G_prime = nx.Graph()
-    G_prime.add_nodes_from(G.nodes())
-    for v in house_ind:
-        for u in house_ind:
-            if u > v:
-                G_prime.add_edge(u, v)
-                G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
-    #G_prime is fully connected graph to feed into mcmc
-    start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
-    path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
-    return path, dropoffs
-    
+    pass
+
+
+#take make a new graph, then input
+def form_tsp(reduced_graph, matrix = True):
+    comp_g = nx.complete_graph(len(reduced_graph.nodes))
+    for (u, v) in G.edges():
+        G.edges[u, v]['weight'] = random.randint(0, 10)
+    for v in list_of_homes:          #reduced_graph.nodes if v in
+        for u in list_of_homes if u is not v:
+            comp_g[u,v]['weight'] = nx.shortest_path_length(reduced_graph, source = u,  target = v, weight = "use")
+
+    if matrix:
+        return nx.to_numpy_matrix(comp_g).np.matrix.tolist()  # 2 dimensional adjascency list
+    else:
+        return comp_g   #nx complete graph with weights
+
+
+def mcmc_tsp():
+    #@source Zhongxiang Dai
+    T = float(pow(2, -8)) # free parameters, inversely related to the probability of rejection if the direction is wrong
+    ITER = 50000
+    L = np.arange(N)  # initail route sequence
+    print(cal_dist(distance, L))  # initial distance
+    dist_all = []
+    for i in range(ITER):
+        a = np.random.randint(1, N - 1)
+        d_t = cal_dist(distance, L)
+        dist_all.append(d_t)
+        L_tmp = copy.copy(L)
+        L_tmp[[a, (a + 1) % N]] = L_tmp[[(a + 1) % N, a]]
+        delta_d = cal_dist(distance, L_tmp) - d_t
+        p = min(1, np.exp(-1 * delta_d / T))
+        u = np.random.rand()
+        if u < p:
+            L = L_tmp
+
+    print(cal_dist(distance, L))  # final distance
+    plt.plot(dist_all)
+
+    #take in: modified adjascency matrix
+    #return: list of output verticies, distance
+
 
 """
 ======================================================================
@@ -92,12 +127,7 @@ def solve_all(input_directory, output_directory, params=[]):
     input_files = utils.get_files_with_extension(input_directory, 'in')
 
     for input_file in input_files:
-        output_filename = utils.input_to_output(input_file).split('/')[1]
-        print(output_filename)
-        print(os.listdir(output_directory))
-        print(output_filename in os.listdir(output_directory))
-        if output_filename not in os.listdir(output_directory):
-            solve_from_file(input_file, output_directory, params=params)
+        solve_from_file(input_file, output_directory, params=params)
 
 
 if __name__=="__main__":
