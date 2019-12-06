@@ -30,6 +30,15 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     house_ind = convert_locations_to_indices(list_of_homes,list_of_locations)
     G = add_node_attributes(G, house_ind)
     cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
+    #turn into fully connected graph of dropoffs
+    G_prime = nx.Graph()
+    G_prime.add_nodes_from(G.nodes())
+    for v in house_ind:
+        for u in house_ind:
+            if u > v:
+                G_prime.add_edge(u, v)
+                G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
+    #G_prime is fully connected graph to feed into mcmc
     start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
     path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
     return path, dropoffs
