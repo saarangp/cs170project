@@ -58,7 +58,7 @@ def prepare_file(filename, drawn=False):
 	start_loc_ind = convert_locations_to_indices([start_loc],locs)
 	path_inds = start_loc_ind + house_ind + start_loc_ind
 	G = add_node_attributes(G, house_ind)
-	if drawn=True:
+	if drawn==True:
 		draw_network(G, house_ind)
 	return G
 
