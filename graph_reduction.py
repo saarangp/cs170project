@@ -64,8 +64,15 @@ def prepare_file(filename, drawn=False):
 		draw_network(G, house_ind)
 	return G
 
-def prepare_files(directory):
-	pass
+def find_nearest_centroid(G, centroids):
+	h = [v for v in G.nodes() if G.nodes[v]['residents'] >= 1]
+	cluster_dict = {v:[] for v in centroids}
+	for v in h:
+		if v in centroids:
+			cluster_dict[v].append(v)
+	return cluster_dict
+
+
 
 
 def draw_network(G, house_ind):

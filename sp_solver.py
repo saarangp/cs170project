@@ -79,27 +79,28 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 
 	return closest_centroid,loc_vor
 
-def cost_clustering(G):
+def cost_clustering(G, start_loc):
 	neighbors_cost = []
 	residents = nx.get_node_attributes(G, 'residents')
 	for v in G.nodes:
 		cost = [G.nodes[u]['residents'] * G[u][v]['weight'] for u in G[v]]
 		cost = sum(cost)
 		neighbors_cost.append(cost)
-	centroids = {}
-	for u in G.nodes():
-		centroids[u] = []
+	centroids = {start_loc:True}
+	# for u in G.nodes():
+	# 	centroids[u] = False
 
 	for e in G.edges():
 		u,v = e[0],e[1]
-		if neighbors_cost[u] < neighbors_cost[v]:
-			centroids[u].append(v)
+		if residents[u] == 0 and residents[v] == 0:
+			pass
+		elif neighbors_cost[u] < neighbors_cost[v]:
+			centroids[u] = True
 		elif neighbors_cost[u] > neighbors_cost[v]:
-			centroids[v].append(u)
+			centroids[v] = True
 		else:
-			if residents[u] >= 1 or residents[v] >=1:
-				centroids[v].append(v)
-				centroids[u].append(u)
+			centroids[v] = True
+			centroids[u] = True
 
 	return centroids
 
@@ -169,19 +170,20 @@ def output_text(path,dropoffs,locs):
 	print(len(dropoffs.keys()))
 	print(stops_to_text(dropoffs,locs))
 
-filename = 'input/50.in'
+if __name__ == "__main__":
+	filename = 'input/50.in'
 
-# #Parse input file and convert to nx graph
-# input = read_file(filename)
-# num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
-# start = convert_locations_to_indices([start_loc],locs)[0]
-# G = adjacency_matrix_to_graph(adj)[0]
-# house_ind = convert_locations_to_indices(houses,locs)
-G = prepare_file(filename)
-residents = nx.get_node_attributes(G, 'residents')
-house_ind = [i for i in G.nodes if residents[i] >= 1]
-centr_cost  = cost_clustering(G)
-print(centr_cost)
+	# #Parse input file and convert to nx graph
+	# input = read_file(filename)
+	# num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
+	# start = convert_locations_to_indices([start_loc],locs)[0]
+	# G = adjacency_matrix_to_graph(adj)[0]
+	# house_ind = convert_locations_to_indices(houses,locs)
+	G = prepare_file(filename)
+	residents = nx.get_node_attributes(G, 'residents')
+	house_ind = [i for i in G.nodes if residents[i] >= 1]
+	centr_cost  = cost_clustering(G, 0)
+	print(centr_cost)
 
 # # Gets modified voronoi for houses and locations to figure out optimal stops.
 

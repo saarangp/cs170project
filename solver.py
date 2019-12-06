@@ -8,6 +8,7 @@ import utils
 from student_utils import *
 from graph_reduction import *
 from sp_solver import *
+from tsp_mcmc.traveling_salesman_MCMC import mcmc_solver
 """
 ======================================================================
   Complete the following function.
@@ -29,18 +30,23 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     G = adjacency_matrix_to_graph(adjacency_matrix)[0]
     house_ind = convert_locations_to_indices(list_of_homes,list_of_locations)
     G = add_node_attributes(G, house_ind)
-    cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
+    #cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
+    start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
+    centroids = cost_clustering(G, start)
     #turn into fully connected graph of dropoffs
     G_prime = nx.Graph()
-    G_prime.add_nodes_from(G.nodes())
-    for v in house_ind:
-        for u in house_ind:
+    G_prime.add_nodes_from(centroids)
+    for v in centroids:
+        for u in centroids:
             if u > v:
                 G_prime.add_edge(u, v)
                 G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
     #G_prime is fully connected graph to feed into mcmc
-    start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
-    path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
+    path = mcmc_solver(G_prime)
+    dropoffs = find_nearest_centroid(G, centroids)
+    #dropoffs = [(v, clusters[v]) for v in clusters.keys()]
+    #start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
+    # path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
     return path, dropoffs
     
 

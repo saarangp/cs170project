@@ -63,7 +63,7 @@ def mcmc_solver(G):
         return d
 
     T = float(pow(2, -8)) # free parameters, inversely related to the probability of rejection if the direction is wrong
-
+    N = len(G.nodes())
 
     L = np.append(np.arange(N), [0]) # initail route sequence
     # print(L)
