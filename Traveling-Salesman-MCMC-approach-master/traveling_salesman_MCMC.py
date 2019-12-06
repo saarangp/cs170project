@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import copy
 import networkx as nx
 import random
+import math
 
 # MCMC (Simulated Annealing) solution for Traveling Salesman problem
 # start from city 1 to city N
@@ -61,22 +62,20 @@ print(L)
 print (cal_dist(distance, L)) # initial distance
 dist_all = []
 
-for i in range(ITER0):
-    c = np.random.randint(1, N - 1)
-    a = np.random.randint(1, N - 1)
-    b = np.random.randint(1, N - 1)
-
-    if a == b:
-        b = (a + 1)%N
-    d_t = cal_dist(distance, L)
-    dist_all.append(d_t)
-    L_tmp = copy.copy(L)
-    L_tmp[[a, b]] = L_tmp[[b, a]]
-    delta_d = cal_dist(distance, L_tmp) - d_t
-    p = min(1, np.exp(-1 * delta_d / T))
-    u = np.random.rand()
-    if u < p:
-        L = L_tmp
+# for i in range(ITER0):
+#     c = np.random.randint(1, math.ceil((N - 1)/2))
+#     a = np.random.randint(1, N - 1, size = c)
+#     b = np.random.randint(1, N - 1, c)
+#     d_t = cal_dist(distance, L)
+#     dist_all.append(d_t)
+#     L_tmp = copy.copy(L)
+#     for k in c:
+#         L_tmp[[a, b]] = L_tmp[[b, a]]
+#     delta_d = cal_dist(distance, L_tmp) - d_t
+#     p = min(1, np.exp(-1 * delta_d / T))
+#     u = np.random.rand()
+#     if u < p:
+#         L = L_tmp
 
 for i in range(ITER1):
     a = np.random.randint(1, N - 1)
