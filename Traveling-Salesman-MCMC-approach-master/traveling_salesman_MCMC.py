@@ -29,6 +29,7 @@ import math
 ITER0 = 30
 ITER1 = 10000
 ITER2 = 5000
+
 '''Keep ITER0 relatively low, and ITER1 about two times as much as ITER2
 For reference, 500 : 100000 : 50000 took about 1.5 mintues for a random input of size 200
 while 50 : 10000 : 5000 took about 12 seconds for a random input of size 200
@@ -122,10 +123,10 @@ def mcmc_solver(G):
 
 
 
-
-N = 25
-G = nx.complete_graph(N)
-for (u, v) in G.edges():
-    G.edges[u, v]['weight'] = random.randint(0, 10)
-mcmc_solver(G)
-# christo_solver(G)
+'''Uncomment this for testing purposes'''
+# N = 25
+# G = nx.complete_graph(N)
+# for (u, v) in G.edges():
+#     G.edges[u, v]['weight'] = random.randint(0, 10)
+# print(mcmc_solver(G))
+# print(christo_solver(G))
