@@ -43,11 +43,20 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 		for loc in locs:
 			h.append((loc,nx.shortest_path_length(G,loc,hou,weight = 'weight')))
 		vor.append(h)
+
 	closest_centroid = [min(dist, key=lambda d: d[1])[0] for dist in vor]
 
 	for i in range(len(closest_centroid)):
 		loc_vor[closest_centroid[i]].append(house_ind[i])
 
+	max_len = 0
+	for key,val in loc_vor.items():
+		if len(val) > max_len:
+			max_len = len(val)
+
+	if max_len <= min_clus_size:
+		min_clus_size = max_len-1
+		print('POPOO')
 
 	#add unclaimed houses to clusters
 	unclaimed_houses = []
@@ -55,8 +64,6 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 		if len(loc_vor[i])<min_clus_size:
 			unclaimed_houses.extend(loc_vor[i])
 			loc_vor.pop(i)	
-
-
 	#same clustering as above but particular to the selected ones. 
 	uvor = []
 	for hou in unclaimed_houses:
@@ -64,6 +71,7 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 		for loc in list(loc_vor.keys()):
 			h.append((loc,nx.shortest_path_length(G,loc,hou,weight = 'weight')))
 		uvor.append(h)
+
 	uclosest_centroid = [min(dist, key=lambda d: d[1])[0] for dist in uvor]
 
 	for i in range(len(uclosest_centroid)):
@@ -82,14 +90,10 @@ def cost_clustering(G):
 	centroids = {}
 	for e in G.edges():
 		u,v = e[0],e[1]
-		if neighbors_cost[u] <= neighbors_cost[v]:
-			centroids[u] = u
-		elif neighbors_cost[u] >= neighbors_cost[v]:
-			centroids[v] = v
-
-	print(centroids)
-	print(len(centroids))
-	print(G.number_of_nodes())
+		if neighbors_cost[u] < neighbors_cost[v]:
+			centroids.get(u,[]).append(v)
+		elif neighbors_cost[u] > neighbors_cost[v]:
+			centroids.get(v,[]).append(u)
 
 def ind_list_to_loc(l,locs):
 	return [locs[i] for i in l]
