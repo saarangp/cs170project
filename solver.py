@@ -83,7 +83,10 @@ def solve_all(input_directory, output_directory, params=[]):
     input_files = utils.get_files_with_extension(input_directory, 'in')
 
     for input_file in input_files:
-        output_filename = utils.input_to_output(input_file)
+        output_filename = utils.input_to_output(input_file).split('/')[2]
+        print(output_filename)
+        print(os.listdir(output_directory))
+        print(output_filename in os.listdir(output_directory))
         if output_filename not in os.listdir(output_directory):
             solve_from_file(input_file, output_directory, params=params)
 
