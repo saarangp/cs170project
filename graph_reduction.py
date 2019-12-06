@@ -6,7 +6,7 @@ import sys, os
 import matplotlib.pyplot as plt
 
 def add_node_attributes(G, house_ind):
-	is_house = [int(v in house_ind) for v in list(G.nodes)]
+	is_house = {v:int(v in house_ind) for v in list(G.nodes)}
 	# Adding node properties to graph. These will become very important with graph pruning and a node can be used as an abstraction for a subtree.
 	# Trees have an analytic solution to the optimal drop off points, so the goal is to use node properties to abstract away dropoffs along a tree.
 	# "Residents" refers to the number of students who live at a location or its subtree
@@ -16,9 +16,11 @@ def add_node_attributes(G, house_ind):
 	# lowest cost of dropping off all TAs on T. However, if v is not in the driving path, then we MUST use the Base Walking Cost, which is always
 	# larger than the base driving cost
 	# "Abbreviated Path" is the path we must add on to our final driving path if we use the Base Driving Cost of v
+	zeros_dict = {v:0 for v in list(G.nodes)}
+	none_dict = {v:None for v in list(G.nodes)}
 	nx.set_node_attributes(G, is_house, 'residents')
-	nx.set_node_attributes(G, np.zeros(len(G.nodes)), 'base_walking_cost')
-	nx.set_node_attributes(G, np.zeros(len(G.nodes)), 'base_driving_cost')
+	nx.set_node_attributes(G, zeros_dict, 'base_walking_cost')
+	nx.set_node_attributes(G, zeros_dict, 'base_driving_cost')
 	nx.set_node_attributes(G, [None for _ in range(len(G.nodes))], 'abbreviated_path')
 	return G
 
