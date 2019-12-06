@@ -32,8 +32,7 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
     start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
     path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
-    output_text(path,dropoffs,locs)
-    pass
+    return path, dropoffs
     
 
 """

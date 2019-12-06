@@ -66,12 +66,8 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 		uvor.append(h)
 	uclosest_centroid = [min(dist, key=lambda d: d[1])[0] for dist in uvor]
 
-
-	print(loc_vor)
 	for i in range(len(uclosest_centroid)):
 		loc_vor[uclosest_centroid[i]].append(unclaimed_houses[i])
-
-	print(loc_vor)
 
 	return closest_centroid,loc_vor
 
@@ -94,6 +90,9 @@ def cost_clustering(G):
 	print(centroids)
 	print(len(centroids))
 	print(G.number_of_nodes())
+
+def ind_list_to_loc(l,locs):
+	return [locs[i] for i in l]
 
 
 def find_path(G, house_ind,num_loc,lv,start):
@@ -154,27 +153,27 @@ def output_text(path,dropoffs,locs):
 	print(len(dropoffs.keys()))
 	print(stops_to_text(dropoffs,locs))
 
-filename = '50.in'
+# filename = '50.in'
 
-#Parse input file and convert to nx graph
-input = read_file(filename)
-num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
-start = convert_locations_to_indices([start_loc],locs)[0]
-G = adjacency_matrix_to_graph(adj)[0]
-house_ind = convert_locations_to_indices(houses,locs)
-# G = prepare_file(filename)
-# residents = nx.get_node_attributes(G, 'residents')
-# house_ind = [i for i in G.nodes if residents[i] >= 1]
-# cost_clustering(G)
+# #Parse input file and convert to nx graph
+# input = read_file(filename)
+# num_loc, num_house, locs, houses, start_loc, adj = data_parser(input)
+# start = convert_locations_to_indices([start_loc],locs)[0]
+# G = adjacency_matrix_to_graph(adj)[0]
+# house_ind = convert_locations_to_indices(houses,locs)
+# # G = prepare_file(filename)
+# # residents = nx.get_node_attributes(G, 'residents')
+# # house_ind = [i for i in G.nodes if residents[i] >= 1]
+# # cost_clustering(G)
 
-# Gets modified voronoi for houses and locations to figure out optimal stops.
+# # Gets modified voronoi for houses and locations to figure out optimal stops.
 
-cc,lv = modified_voronoi(G, house_ind,num_loc)
+# cc,lv = modified_voronoi(G, house_ind,num_loc)
 
-path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
-output_text(path,dropoffs,locs)
+# path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
+# output_text(path,dropoffs,locs)
 
-# draw_network(G,house_ind,cc)
+# # draw_network(G,house_ind,cc)
 
 
 
