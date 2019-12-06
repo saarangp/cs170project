@@ -19,7 +19,7 @@ def add_node_attributes(G, house_ind):
 	nx.set_node_attributes(G, is_house, 'residents')
 	nx.set_node_attributes(G, np.zeros(len(G.nodes)), 'base_walking_cost')
 	nx.set_node_attributes(G, np.zeros(len(G.nodes)), 'base_driving_cost')
-	nx.set_node_attributes(G, [None for _ in len(G.nodes)], 'abbreviated_path')
+	nx.set_node_attributes(G, [None for _ in range(len(G.nodes))], 'abbreviated_path')
 
 def sort_list(list1, list2): #sorts elements in list1 according to values in list2
     zipped_pairs = zip(list2, list1) 
