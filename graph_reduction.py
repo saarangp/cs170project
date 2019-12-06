@@ -46,6 +46,8 @@ def prune_branch(G, v, res):
 			G.node[neighbor]['residents'] += G.node[v]['residents']
 			G.node[neighbor]['base_walking_cost'] += G.node[v]['base_walking_cost'] \
 			+ G.node[v]['residents'] * G.edge[v][u]['weight']
+			G.node[neighbor]['base_driving_cost'] += G.node[v]['base_driving_cost'] \
+			+ G.node[v]['residents'] * G.edge[v][u]['weight']
 
 
 
