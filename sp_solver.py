@@ -78,6 +78,7 @@ def modified_voronoi(G, house_ind,num_loc,min_clus_size = 2):
 def cost_clustering(G):
 	neighbors_cost = []
 	residents = nx.get_node_attributes(G, 'residents')
+	print(residents)
 	n = list(G.nodes)
 	for v in G.nodes:
 		cost = [G.node(u)['residents'] * G[u][v]['weight'] for u in G[v]][0]
@@ -156,16 +157,18 @@ filename = '50.in'
 G = prepare_file(filename)
 residents = nx.get_node_attributes(G, 'residents')
 house_ind = [i for i in G.nodes if residents[i] >= 1]
+cost_clustering(G)
 
 #make sure not alking to houses we can drive to
 # T=nx.minimum_spanning_tree(G,weight = 'weight')
 # print(sorted(T.edges(data=False)))
 
 # Gets modified voronoi for houses and locations to figure out optimal stops.
-cc,lv = modified_voronoi(G, house_ind,num_loc)
 
-path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
-output_text(path,dropoffs,locs)
+# cc,lv = modified_voronoi(G, house_ind,num_loc)
+
+# path,dropoffs = find_path(G, house_ind,num_loc,lv,start)
+# output_text(path,dropoffs,locs)
 
 # draw_network(G,house_ind,cc)
 

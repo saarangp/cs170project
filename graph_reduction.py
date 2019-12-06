@@ -5,7 +5,7 @@ import networkx as nx
 import sys, os
 import matplotlib.pyplot as plt
 
-def add_node_attributes(G, houses):
+def add_node_attributes(G, house_ind):
 	is_house = [int(v in house_ind) for v in list(G.nodes)]
 	# Adding node properties to graph. These will become very important with graph pruning and a node can be used as an abstraction for a subtree.
 	# Trees have an analytic solution to the optimal drop off points, so the goal is to use node properties to abstract away dropoffs along a tree.
@@ -21,17 +21,11 @@ def add_node_attributes(G, houses):
 	nx.set_node_attributes(G, np.zeros(len(G.nodes)), 'base_driving_cost')
 	nx.set_node_attributes(G, [None for _ in len(G.nodes)], 'abbreviated_path')
 
-def sort_list(list1, list2): #sorts elements in list1 according to values in list2
-    zipped_pairs = zip(list2, list1) 
-    z = [x for _, x in sorted(zipped_pairs)] 
-    return z 
-
 def prune_leaves(G):
 	# This should keep updated even when graph is changed
 	residents = nx.get_node_attributes(G, 'residents')
-	r = sort_list(residents.keys(), residents.values())
-	for v in r:
-		prune_branch(G, v, residents)
+	for v in G.nodes:
+		prune_branch(G, v, res)
 
 def prune_branch(G, v, res):
 	if len(G[v]) < 2:
@@ -56,7 +50,6 @@ def prepare_file(filename):
 	path_inds = start_loc_ind + house_ind + start_loc_ind
 	G = add_node_attributes(G, house_ind)
 	draw_network(G, house_ind)
-	return G
 
 
 
