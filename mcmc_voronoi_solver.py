@@ -27,26 +27,35 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
         A list of locations representing the car path
         A list of (location, [homes]) representing drop-offs
     """
+    print("Processing Graph")
     G = adjacency_matrix_to_graph(adjacency_matrix)[0]
     house_ind = convert_locations_to_indices(list_of_homes,list_of_locations)
     G = add_node_attributes(G, house_ind)
     cc,lv = modified_voronoi(G, house_ind,len(list_of_locations))
     start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
-    # centroids = cost_clustering(G, start)
-    # #turn into fully connected graph of dropoffs
-    # G_prime = nx.Graph()
-    # G_prime.add_nodes_from(centroids)
-    # for v in centroids:
-    #     for u in centroids:
-    #         if u > v:
-    #             G_prime.add_edge(u, v)
-    #             G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
-    # #G_prime is fully connected graph to feed into mcmc
-    # path = mcmc_solver(G_prime)
-    # dropoffs = find_nearest_centroid(G, centroids)
-    # #dropoffs = [(v, clusters[v]) for v in clusters.keys()]
-    # #start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
-    path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
+    centroids = lv
+    print("Centroids Computed")
+    #turn into fully connected graph of dropoffs
+    G_prime = nx.Graph()
+    G_prime.add_nodes_from(centroids)
+    for v in centroids:
+        print("Finding distances from centroid " + str(v))
+        for u in centroids:
+            if u > v:
+                G_prime.add_edge(u, v)
+                G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
+    #G_prime is fully connected graph to feed into mcmc
+    print("Beginning mcmc iterations")
+    abbrev_path = mcmc_solver(G_prime)
+    print("mcmc finished, calculating dropoff points")
+    path = [abbrev_path[0]]
+    for i in range(len(abbrev_path) - 1):
+        rt = nx.dijkstra_path(G, abbrev_path[i], abbrev_path[i + 1])
+        path = path + rt[1:]
+    dropoffs = find_nearest_centroid(G, centroids)
+    #dropoffs = [(v, clusters[v]) for v in clusters.keys()]
+    #start = convert_locations_to_indices([starting_car_location],list_of_locations)[0]
+    # path,dropoffs = find_path(G, house_ind,len(list_of_locations),lv,start)
     return path, dropoffs
     
 
@@ -97,6 +106,7 @@ def solve_from_file(input_file, output_directory, params=[]):
 def solve_all(input_directory, output_directory, params=[]):
     input_files = utils.get_files_with_extension(input_directory, 'in')
     errors = []
+
     for input_file in input_files:
         output_filename = utils.input_to_output(input_file).split('/')[2]
         if output_filename not in os.listdir(output_directory):
