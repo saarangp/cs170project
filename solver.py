@@ -38,12 +38,12 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
     #turn into fully connected graph of dropoffs
     G_prime = nx.Graph()
     G_prime.add_nodes_from(centroids)
+    shortest_paths = dict(nx.all_pairs_bellman_ford_path_length(G))
     for v in centroids:
-        print("Finding distances from centroid " + str(v))
         for u in centroids:
             if u > v:
                 G_prime.add_edge(u, v)
-                G_prime[u][v]['weight'] = nx.dijkstra_path_length(G, u, v)
+                G_prime[u][v]['weight'] = shortest_paths[u][v]
     #G_prime is fully connected graph to feed into mcmc
     print("Beginning mcmc iterations")
     abbrev_path = mcmc_solver(G_prime)
@@ -107,7 +107,7 @@ def solve_all(input_directory, output_directory, params=[]):
     input_files = utils.get_files_with_extension(input_directory, 'in')
 
     for input_file in input_files:
-        output_filename = utils.input_to_output(input_file).split('/')[1]
+        output_filename = utils.input_to_output(input_file).split('/')[-1]
         print(output_filename)
         print(os.listdir(output_directory))
         print(output_filename in os.listdir(output_directory))
