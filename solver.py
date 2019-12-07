@@ -46,7 +46,7 @@ def solve(list_of_locations, list_of_homes, starting_car_location, adjacency_mat
                 G_prime[u][v]['weight'] = shortest_paths[u][v]
     #G_prime is fully connected graph to feed into mcmc
     print("Beginning mcmc iterations")
-    abbrev_path = mcmc_solver(G_prime)
+    abbrev_path = mcmc_solver(G_prime, start)
     print("mcmc finished, calculating dropoff points")
     path = [abbrev_path[0]]
     for i in range(len(abbrev_path) - 1):
