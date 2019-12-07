@@ -50,16 +50,35 @@ returns list of edges that solver will travel to starting and ending with locati
 '''
 
 # Calculate total distance for a given sequence
-def mcmc_solver(G):
+def mcmc_solver(G, start):
     distance = nx.to_numpy_matrix(G)
 
     node_names = list(G.nodes)
+    start_index = 0
+    for i in range(len(node_names)):
+        if node_names[i] == start:
+            start_index = i
+            break
+
+    soda = list(G.nodes)[start_index]
+    print(start_index, soda)
+
+
+    def swap_weights(a,b):
+        nl = list(G.nodes)
+        nl.remove(a)
+        nl.remove(b)
+        for v in nl:
+            repl_weight = G.edges[a, v]['weight']
+            G.edges[a, v]['weight'] = G.edges[b, v]['weight']
+            G.edges[b, v]['weight'] = repl_weight
+
     #print(distance)
 
     if len(G.nodes()) == 1:
-        return node_names[0]
+        return node_names[start_index]
     if len(G.nodes()) == 2:
-        return [node_names[0], node_names[1], node_names[0]]
+        return [node_names[start_index], node_names[1 - start_index], node_names[start_index]]
 
     def cal_dist(distance, L):
 
@@ -71,17 +90,23 @@ def mcmc_solver(G):
     T = float(pow(2, -8)) # free parameters, inversely related to the probability of rejection if the direction is wrong
     N = len(G.nodes())
 
-    L = np.append(np.arange(N), [0]) # initail route sequence
-    # print(L)
-    # print (cal_dist(distance, L)) # initial distance
-    # dist_all = []
+    swap_weights(0, start_index)
+
+    L = np.append(np.arange(N), [0]) # initial route sequence
+
+    print(L)
+    print (cal_dist(distance, L)) # initial distance
+    dist_all = []
+
+
+
 
     for i in range(ITER0):
         c = np.random.choice(math.ceil((N - 1)/2), size = 1, replace=False)
         a = np.random.randint(1, N - 1, size = c)
         b = np.random.randint(1, N - 1, size = c)
         d_t = cal_dist(distance, L)
-        # dist_all.append(d_t)
+        dist_all.append(d_t)
         L_tmp = copy.copy(L)
         for k in range(c[0]):
             L_tmp[[a[k], b[k]]] = L_tmp[[b[k], a[k]]]
@@ -97,7 +122,7 @@ def mcmc_solver(G):
         if a == b:
             b = (a + 1)%N
         d_t = cal_dist(distance, L)
-        # dist_all.append(d_t)
+        dist_all.append(d_t)
         L_tmp = copy.copy(L)
         L_tmp[[a, b]] = L_tmp[[b, a]]
         delta_d = cal_dist(distance, L_tmp) - d_t
@@ -109,7 +134,7 @@ def mcmc_solver(G):
         a = np.random.randint(1, N - 1)
         b = (a + 1)%N
         d_t = cal_dist(distance, L)
-        # dist_all.append(d_t)
+        dist_all.append(d_t)
         L_tmp = copy.copy(L)
         L_tmp[[a, b]] = L_tmp[[b, a]]
         delta_d = cal_dist(distance, L_tmp) - d_t
@@ -117,10 +142,19 @@ def mcmc_solver(G):
         u = np.random.rand()
         if u < p:
             L = L_tmp
-    # print(list(L))
-    # print (cal_dist(distance, L)) # final distance
-    # plt.plot(dist_all)
-    # plt.show()
+
+    #swap_weights(0, start_index)
+    soda_index = list(L).index(soda)
+    L[0] = soda
+    L[len(L) - 1] = soda
+    L[soda_index] = 0
+
+
+    print(list(L))
+    print (cal_dist(distance, L)) # final distance
+    plt.plot(dist_all)
+    plt.show()
+
     return([node_names[i] for i in L])
 
 # def christo_solver(G):
@@ -134,5 +168,8 @@ def mcmc_solver(G):
 # G = nx.complete_graph(N)
 # for (u, v) in G.edges():
 #     G.edges[u, v]['weight'] = random.randint(0, 10)
-# print(mcmc_solver(G))
+# mcmc_solver(G, N%9)
+
+
+
 # print(christo_solver(G))
